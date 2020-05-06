@@ -3103,9 +3103,8 @@ class Ravencoin(Coin):
     DESERIALIZER = lib_tx.DeserializerSegWit
     X16RV2_ACTIVATION_TIME = 1569945600  # algo switch to x16rv2 at this timestamp
     KAWPOW_ACTIVATION_TIME = 1588788000 # kawpow algo activation time
-    KAWPOW_ACTIVATION_HEIGHT = -1 # todo: update with actual height post fork
+    KAWPOW_ACTIVATION_HEIGHT = 1219736
     KAWPOW_HEADER_SIZE = 120
-    KAWPOW_EPOCH_LENGTH = 7500
     TX_COUNT = 5626682
     TX_COUNT_HEIGHT = 887000
     TX_PER_BLOCK = 6
@@ -3131,16 +3130,19 @@ class Ravencoin(Coin):
         timestamp = util.unpack_le_uint32_from(header, 68)[0]
         assert cls.KAWPOW_ACTIVATION_TIME > 0
 
+        def reverse_bytes(data):
+            b = bytearray(data)
+            b.reverse()
+            return bytes(b)
+
         if timestamp >= cls.KAWPOW_ACTIVATION_TIME:
             import kawpow
-            nHeight = util.unpack_le_uint32_from(header, 76)[0] # uint32_t
             nNonce64 = util.unpack_le_uint64_from(header, 80)[0] # uint64_t
+            mix_hash = reverse_bytes(header[88:120])  # uint256
 
-            header_hash = double_sha256(header[:80])
+            header_hash = reverse_bytes(double_sha256(header[:80]))
 
-            epoch_number = int(nHeight / cls.KAWPOW_EPOCH_LENGTH)
-
-            final_hash, mix_hash = kawpow.hash(epoch_number, header_hash, nNonce64)
+            final_hash = reverse_bytes(kawpow.light_verify(header_hash, mix_hash, nNonce64))
             return final_hash
 
         elif timestamp >= cls.X16RV2_ACTIVATION_TIME:
