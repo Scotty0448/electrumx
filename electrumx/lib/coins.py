@@ -3101,8 +3101,8 @@ class Ravencoin(Coin):
     GENESIS_HASH = ('0000006b444bc2f2ffe627be9d9e7e7a'
                     '0730000870ef6eb6da46c8eae389df90')
     DESERIALIZER = lib_tx.DeserializerSegWit
-    X16RV2_ACTIVATION_TIME = 1569945600  # algo switch to x16rv2 at this timestamp
-    KAWPOW_ACTIVATION_TIME = 1588788000 # kawpow algo activation time
+    X16RV2_ACTIVATION_TIME = 1569945600   # algo switch to x16rv2 at this timestamp
+    KAWPOW_ACTIVATION_TIME = 1588788000  # kawpow algo activation time
     KAWPOW_ACTIVATION_HEIGHT = 1219736
     KAWPOW_HEADER_SIZE = 120
     TX_COUNT = 5626682
@@ -3118,11 +3118,10 @@ class Ravencoin(Coin):
         '''Given a header height return its offset in the headers file.'''
         if cls.KAWPOW_ACTIVATION_HEIGHT < 0 or height <= cls.KAWPOW_ACTIVATION_HEIGHT:
             result = height * cls.BASIC_HEADER_SIZE
-        else: # RVN block header size increased with kawpow fork
+        else:  # RVN block header size increased with kawpow fork
             baseoffset = cls.KAWPOW_ACTIVATION_HEIGHT * cls.BASIC_HEADER_SIZE
             result = baseoffset + ((height-cls.KAWPOW_ACTIVATION_HEIGHT) * cls.KAWPOW_HEADER_SIZE)
         return result
-
 
     @classmethod
     def header_hash(cls, header):
@@ -3137,7 +3136,7 @@ class Ravencoin(Coin):
 
         if timestamp >= cls.KAWPOW_ACTIVATION_TIME:
             import kawpow
-            nNonce64 = util.unpack_le_uint64_from(header, 80)[0] # uint64_t
+            nNonce64 = util.unpack_le_uint64_from(header, 80)[0]  # uint64_t
             mix_hash = reverse_bytes(header[88:120])  # uint256
 
             header_hash = reverse_bytes(double_sha256(header[:80]))
